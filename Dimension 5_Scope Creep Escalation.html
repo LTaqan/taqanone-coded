@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAQAN Recon - Sandbox Execution</title>
+    <style>
+        :root { --bg: #0f172a; --surface: #1e293b; --text: #f8fafc; --accent: #3b82f6; --success: #10b981; }
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg); color: var(--text); padding: 2rem; display: flex; justify-content: center; }
+        .container { background-color: var(--surface); padding: 2rem; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        h2 { margin-top: 0; font-size: 1.5rem; border-bottom: 1px solid #334155; padding-bottom: 1rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: #cbd5e1; }
+        input { width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid #334155; color: white; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 0.875rem; background-color: var(--accent); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button:hover { background-color: #2563eb; }
+        .status { margin-top: 1rem; padding: 1rem; border-radius: 6px; display: none; font-size: 0.875rem; word-break: break-all; }
+        .success { background-color: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid var(--success); display: block; }
+        .error { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444; display: block; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Dimension 5: Scope Creep Escalation</h2>
+    
+    <div class="form-group">
+        <label>Ticket Reference (Evidence)</label>
+        <input type="text" id="ticketRef" value="JIRA-TSK-492">
+    </div>
+    <div class="form-group">
+        <label>Unbilled Hours</label>
+        <input type="number" id="unbilledHours" value="18.5" step="0.5">
+    </div>
+    <div class="form-group">
+        <label>Contract Hourly Rate (USD)</label>
+        <input type="number" id="hourlyRate" value="225.00" step="1">
+    </div>
+    
+    <button id="triggerWebhook">Log CIRE Payload to Sandbox</button>
+    
+    <div id="statusMessage" class="status"></div>
+</div>
+
+<script>
+    // 1. Localized JSON Configuration (The "Hot-Swappable" Engine)
+    // In production, this is fetched via IndexedDB/Vite config, but hardcoded here for the sandbox.
+    const verticalConfig = {
+        client: {
+            entity_id: "IT-DMV-992",
+            entity_name: "Apex Cloud Solutions",
+            arr_tier: "$5M-$10M"
+        },
+        cire_flag: {
+            diagnostic_dimension: 5,
+            leakage_bucket: "Operational Revenue Drag",
+            incident_type: "Out-of-Scope Azure Patching"
+        },
+        evidence_baseline: {
+            contract_status: "Fixed-Fee MSA (Over-serviced)"
+        }
+    };
+
+    // 2. The Make.com Webhook Endpoint
+    // Replace this with your actual Make.com Webhook URL
+    const MAKE_WEBHOOK_URL = 'https://hook.make.com/YOUR_MAKE_WEBHOOK_URL_HERE';
+
+    // 3. Frontend Trigger & Logic
+    document.getElementById('triggerWebhook').addEventListener('click', async () => {
+        const btn = document.getElementById('triggerWebhook');
+        const statusEl = document.getElementById('statusMessage');
+        btn.innerText = "Transmitting...";
+        
+        // Grab dynamic inputs
+        const hours = parseFloat(document.getElementById('unbilledHours').value);
+        const rate = parseFloat(document.getElementById('hourlyRate').value);
+        const ticket = document.getElementById('ticketRef').value;
+
+        // Construct the exact test payload 
+        const payload = {
+            client: verticalConfig.client,
+            cire_flag: verticalConfig.cire_flag,
+            financial_impact: {
+                unbilled_hours: hours,
+                contract_hourly_rate: rate,
+                calculated_cire_value: hours * rate,
+                currency: "USD"
+            },
+            evidence: {
+                ticket_reference: ticket,
+                contract_status: verticalConfig.evidence_baseline.contract_status,
+                timestamp: new Date().toISOString()
+            }
+        };
+
+        try {
+            // The vanilla fetch() trigger
+            const response = await fetch(MAKE_WEBHOOK_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                statusEl.className = 'status success';
+                statusEl.innerText = `Success! Payload delivered.\nCIRE Value: $${payload.financial_impact.calculated_cire_value}`;
+            } else {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+        } catch (error) {
+            statusEl.className = 'status error';
+            statusEl.innerText = `Transmission Failed. Ensure your Make.com Webhook URL is correct.\nError: ${error.message}`;
+            
+            // Queue to IndexedDB logic would trigger here in production
+            console.warn("Offline or Failed: Pushing payload to IndexedDB queue...");
+        } finally {
+            btn.innerText = "Log CIRE Payload to Sandbox";
+        }
+    });
+</script>
+
+</body>
+</html>
