@@ -1,0 +1,86 @@
+# Quantum Learning Engine v3.1 - High-Stability Version
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Learning Engine v3.1 - High Stability</title>
+    <!-- Tailwind CSS v4.3 via permitted CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Orbitron:wght@400;700;900&display=swap');
+
+        :root {
+            --neon-cyan: #06b6d4;
+            --deep-space: #050814;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #050814;
+
+            color: #e2e8f0;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .ui-neon-text {
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            backdrop-filter: blur(8px);
+        }
+
+
+        .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: var(--neon-cyan) rgba(255, 255, 255, 0.05);
+        }
+
+        /* Abstract Static Background (Replaces Three.js for stability) */
+        .static-bg {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 70% 30%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+            z-index: 0;
+        }
+    </style>
+</head>
+
+<body class="p-6 antialiased">
+    <div class="static-bg"></div>
+
+
+
+
+
+Agent Intel Hub
+
+
+StoryAnalyst_v3Analyzing narrative branches...
+
+
+
+Performance
+
+Latency0.12ms
+
+
+
+
+Cognitive Layer 14Integrity: 100%
+Cloudflare Agent Cloud // Tailwind v4.3 Oxide
+
+
+The code utilizes CSS gradients instead of active 3D rendering to ensure stability, addressing potential Wayland-related white-screen issues. Relaunching Chrome with the --ozone-platform=x11 flag is recommended to ensure the Toggle Preview button functions correctly. [1] 
+
+[1] [https://askubuntu.com](https://askubuntu.com/questions/1477390/google-chrome-isnt-properly-working)

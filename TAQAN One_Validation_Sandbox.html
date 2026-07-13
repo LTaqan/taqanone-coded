@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAQAN One - Validation Sandbox</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center py-10 px-4">
+
+    <div class="w-full max-w-3xl">
+        <!-- Control Panel (Simulating the framework wrapper) -->
+        <div class="bg-slate-800 text-white p-4 rounded-t-xl flex justify-between items-center shadow-lg">
+            <div>
+                <h1 class="text-lg font-bold tracking-tight">TAQAN One Core Engine v0.1</h1>
+                <p class="text-xs text-slate-400">Modular PWA Sandbox</p>
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="CoreEngine.loadVertical('revenue')" class="px-3 py-1 text-sm bg-slate-700 hover:bg-slate-600 rounded transition">Load Revenue</button>
+                <button onclick="CoreEngine.loadVertical('cognitive')" class="px-3 py-1 text-sm bg-indigo-600 hover:bg-indigo-500 rounded transition">Load Cognitive</button>
+            </div>
+        </div>
+
+        <!-- Dynamic Viewport (Where the JSON config renders) -->
+        <div id="app-viewport" class="glass-panel p-8 rounded-b-xl min-h-[400px] border border-slate-200">
+            <div class="flex flex-col items-center justify-center h-full text-slate-500">
+                <svg class="w-12 h-12 mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                <p>Select a vertical from the control panel to inject JSON config.</p>
+            </div>
+        </div>
+
+        <!-- Debug Console -->
+        <div class="mt-6 bg-black rounded-lg p-4 font-mono text-xs text-green-400 shadow-inner h-32 overflow-y-auto" id="debug-console">
+            > System initialized. Waiting for vertical injection...<br>
+        </div>
+    </div>
+
+    <script>
+        // These represent what would normally be in /verticals/revenue-recovery.json and /verticals/cognitive-learning.json
+        const MockFilesystem = {
+            'revenue': {
+                verticalName: "B2B Revenue Recovery",
+                theme: "blue",
+                content: `
+                    <h2 class="text-2xl font-bold text-slate-800 mb-2">Aging Accounts Receivable</h2>
+                    <p class="text-slate-600 mb-6">Automated ingestion phase active. 3 accounts flagged.</p>
+                    <div class="bg-blue-50 border border-blue-100 p-4 rounded-lg flex justify-between items-center mb-3">
+                        <div><p class="font-bold text-slate-800">Acme Corp</p><p class="text-sm text-slate-500">90 Days Past Due</p></div>
+                        <p class="font-bold text-blue-700">$45,200.00</p>
+                    </div>
+                    <button class="w-full mt-4 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition" onclick="CoreEngine.log('Recovery Sequence Deployed via Webhook')">Deploy Escallation Sequence</button>
+                `
+            },
+            'cognitive': {
+                verticalName: "Cognitive Adaptive Learning",
+                theme: "indigo",
+                content: `
+                    <div id="cognitive-state-machine">
+                        <!-- Content rendered by JS state machine -->
+                    </div>
+                `
+            }
+        };
+
+        const CoreEngine = {
+            currentConfig: null,
+            cognitiveState: { attempts: 0, maxAttempts: 3, fatigueScore: 0 },
+
+            log(message) {
+                const consoleEl = document.getElementById('debug-console');
+                const time = new Date().toLocaleTimeString();
+                consoleEl.innerHTML += `> [${time}] ${message}<br>`;
+                consoleEl.scrollTop = consoleEl.scrollHeight;
+            },
+
+            loadVertical(verticalKey) {
+                this.log(`Fetching /verticals/${verticalKey}.json...`);
+                this.currentConfig = MockFilesystem[verticalKey];
+                
+                const viewport = document.getElementById('app-viewport');
+                viewport.innerHTML = `<div class="fade-in">${this.currentConfig.content}</div>`;
+                
+                if (verticalKey === 'cognitive') {
+                    this.initCognitiveModule();
+                }
+            },
+
+            initCognitiveModule() {
+                this.cognitiveState.attempts = 0;
+                this.renderCognitiveQuestion();
+            },
+
+            renderCognitiveQuestion() {
+                const container = document.getElementById('cognitive-state-machine');
+                if(!container) return;
+
+                container.innerHTML = `
+                    <div class="mb-6 flex justify-between items-center">
+                        <span class="text-xs font-bold uppercase text-indigo-500 tracking-wider">Baseline Assessment</span>
+                        <span class="text-xs font-mono bg-slate-100 px-2 py-1 rounded">Attempts: ${this.cognitiveState.attempts}/${this.cognitiveState.maxAttempts}</span>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-800 mb-4">Identify the highest churn risk indicator:</h2>
+                    <div class="space-y-3">
+                        <button onclick="CoreEngine.handleCognitiveAnswer(false)" class="w-full text-left p-4 border rounded-lg hover:bg-slate-50 transition">A. 5% decrease in login frequency over 30 days.</button>
+                        <button onclick="CoreEngine.handleCognitiveAnswer(false)" class="w-full text-left p-4 border rounded-lg hover:bg-slate-50 transition">B. Support ticket volume increased by 2.</button>
+                        <button onclick="CoreEngine.handleCognitiveAnswer(true)" class="w-full text-left p-4 border rounded-lg hover:bg-indigo-50 hover:border-indigo-300 transition">C. Executive sponsor departs company (90 days past due AR).</button>
+                    </div>
+                    <div id="feedback-area" class="mt-4 text-sm font-medium"></div>
+                `;
+            },
+
+            handleCognitiveAnswer(isCorrect) {
+                const feedback = document.getElementById('feedback-area');
+                
+                if (isCorrect) {
+                    feedback.innerHTML = `<span class="text-green-600">Correct. Advancing to Module 2...</span>`;
+                    this.log("Cognitive Check Passed. Adapting learning path: Complexity +1.");
+                    // In a real app, advance state here.
+                } else {
+                    this.cognitiveState.attempts++;
+                    this.cognitiveState.fatigueScore += 3;
+                    
+                    if (this.cognitiveState.attempts >= this.cognitiveState.maxAttempts) {
+                        this.triggerHITLEscalation();
+                    } else {
+                        feedback.innerHTML = `<span class="text-red-500">Incorrect. Adaptive engine applying remedial context.</span>`;
+                        this.log(`Block detected. Attempt ${this.cognitiveState.attempts}. Rerouting visual context.`);
+                        this.renderCognitiveQuestion(); // Re-render to update attempt counter
+                    }
+                }
+            },
+
+            async triggerHITLEscalation() {
+                const container = document.getElementById('cognitive-state-machine');
+                container.innerHTML = `
+                    <div class="text-center py-8 fade-in">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-100 mb-4">
+                            <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        </div>
+                        <h2 class="text-xl font-bold text-slate-800 mb-2">Human Intervention Required</h2>
+                        <p class="text-slate-600 mb-6">A conceptual block has been detected. Securing session state and paging subject matter expert.</p>
+                        <div class="w-full bg-slate-200 rounded-full h-2 mb-4 overflow-hidden">
+                            <div class="bg-amber-500 h-2 rounded-full w-full animate-pulse"></div>
+                        </div>
+                        <p class="text-xs text-slate-400 font-mono">Transmitting secure payload to Double-Hop Ingress...</p>
+                    </div>
+                `;
+
+                this.log("CRITICAL: HITL Triggered. Constructing Secure Core JSON Payload.");
+                
+                const securePayload = {
+                    session_id: "tx-892-alpha",
+                    trigger_event: "HITL_Escalation",
+                    cognitive_fatigue_score: this.cognitiveState.fatigueScore,
+                    revenue_exposure_flag: true,
+                    timestamp: new Date().toISOString()
+                };
+
+                this.log(`Payload ready: ${JSON.stringify(securePayload)}`);
+                this.log("Simulating fetch() to Make.com/Secure Gateway...");
+
+                // Simulate network latency for the webhook
+                setTimeout(() => {
+                    this.log("<span class='text-blue-400'>200 OK: Escalation payload received by Secure Gateway. Account manager alerted.</span>");
+                }, 1500);
+            }
+        };
+    </script>
+</body>
+</html>
