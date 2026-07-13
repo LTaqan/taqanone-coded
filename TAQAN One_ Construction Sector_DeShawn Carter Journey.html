@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>TAQAN One - Construction Sector | DeShawn Carter Journey</title>
+ <link rel="manifest" href="manifest.json" />
+ <meta name="theme-color" content="#1a1a2e"/>
+ <style>
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+
+ body {
+ font-family: 'Segoe UI', sans-serif;
+ background: #0d0d1a;
+ color: #e0e0e0;
+ min-height: 100vh;
+ display: flex;
+ flex-direction: column;
+ }
+
+ header {
+ background: linear-gradient(135deg, #1a1a2e, #16213e);
+ padding: 20px 24px;
+ border-bottom: 2px solid #c8a96e;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ }
+
+ header h1 {
+ font-size: 1.2rem;
+ color: #c8a96e;
+ letter-spacing: 1px;
+ text-transform: uppercase;
+ }
+
+ header span {
+ font-size: 0.75rem;
+ color: #888;
+ }
+
+ .sector-badge {
+ background: #c8a96e;
+ color: #0d0d1a;
+ font-size: 0.7rem;
+ font-weight: 700;
+ padding: 4px 10px;
+ border-radius: 12px;
+ text-transform: uppercase;
+ letter-spacing: 1px;
+ }
+
+ .main-container {
+ display: flex;
+ flex: 1;
+ gap: 0;
+ }
+
+ /* LEFT PANEL */
+ .left-panel {
+ width: 55%;
+ padding: 32px 28px;
+ border-right: 1px solid #2a2a4a;
+ display: flex;
+ flex-direction: column;
+ gap: 24px;
+ }
+
+ .character-block {
+ background: linear-gradient(135deg, #1a1a2e, #16213e);
+ border: 1px solid #c8a96e;
+ border-radius: 12px;
+ padding: 20px;
+ }
+
+ .character-block h2 {
+ font-size: 1rem;
+ color: #c8a96e;
+ margin-bottom: 4px;
+ text-transform: uppercase;
+ letter-spacing: 1px;
+ }
+
+ .character-block p {
+ font-size: 0.82rem;
+ color: #aaa;
+ margin-bottom: 12px;
+ }
+
+ .character-stats {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 8px;
+ }
+
+ .stat-item {
+ background: #0d0d1a;
+ border-radius: 8px;
+ padding: 10px 12px;
+ border-left: 3px solid #c8a96e;
+ }
+
+ .stat-item .label {
+ font-size: 0.68rem;
+ color: #888;
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
+ }
+
+ .stat-item .value {
+ font-size: 0.88rem;
+ color: #e0e0e0;
+ font-weight: 600;
+ margin-top: 2px;
+ }
+
+ /* PROTOCOL MODULE */
+ .protocol-module {
+ background: #12122a;
+ border: 1px solid #2a2a4a;
+ border-radius: 12px;
+ padding: 20px;
+ }
+
+ .protocol-module h3 {
+ font-size: 0.85rem;
+ color: #c8a96e;
+ text-transform: uppercase;
+ letter-spacing: 1px;
+ margin-bottom: 16px;
+ }
+
+ .attempt-tracker {
+ display: flex;
+ gap: 10px;
+ margin-bottom: 16px;
+ }
+
+ .attempt-dot {
+ width: 36px;
+ height: 36px;
+ border-radius: 50%;
+ border: 2px solid #2a2a4a;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ font-size: 0.75rem;
+ font-weight: 700;
+ color: #555;
+ transition: all 0.3s;
+ }
+
+ .attempt-dot.active {
+ border-color: #c8a96e;
+ color: #c8a96e;
+ }
+
+ .attempt-dot.failed {
+ border-color: #e74c3c;
+ background: rgba(231, 76, 60, 0.15);
+ color: #e74c3c;
+ }
+
+ .attempt-dot.passed {
+ border-color: #2ecc71;
+ background: rgba(46, 204, 113, 0.15);
+ color: #2ecc71;
+ }
+
+ .protocol-question {
+ background: #0d0d1a;
+ border-radius: 8px;
+ padding: 14px;
+ margin-bottom: 12px;
+ border-left: 3px solid #2a2a4a;
+ font-size: 0.85rem;
+ color: #ccc;
+ line-height: 1.5;
+ }
+
+ .protocol-question.active-question {
+ border-left-color: #c8a96e;
+ color: #e0e0e0;
+ }
+
+ .answer-grid {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 8px;
+ margin-top: 10px;
+ }
+
+ .answer-btn {
+ padding: 10px;
+ border-radius: 8px;
+ border: 1px solid #2a2a4a;
+ background: #12122a;
+ color: #ccc;
+ font-size: 0.8rem;
+ cursor: pointer;
+ transition: all 0.2s;
+ text-align: center;
+ }
+
+ .answer-btn:hover {
+ border-color: #c8a96e;
+ color: #c8a96e;
+ }
+
+ .answer-btn.selected-pass {
+ border-color: #2ecc71;
+ background: rgba(46, 204, 113, 0.1);
+ color: #2ecc71;
+ }
+
+ .answer-btn.selected-fail {
+ border-color: #e74c3c;
+ background: rgba(231, 76, 60, 0.1);
+ color: #e74c3c;
+ }
+
+ /* SCOPE MATRIX */
+ .scope-matrix {
+ background: #12122a;
+ border: 1px solid #2a2a4a;
+ border-radius: 12px;
+ padding: 20px;
+ }
+
+ .scope-matrix h3 {
+ font-size: 0.85rem;
+ color: #c8a96e;
+ text-transform: uppercase;
+ letter-spacing: 1px;
+ margin-bottom: 14px;
+ }
+
+ .scope-row {
+ display: grid;
+ grid-template-columns: 2fr 1fr 1fr;
+ gap: 8px;
+ margin-bottom: 8px;
+ align-items: center;
+ }
+
+ .scope-row.header-row {
+ margin-bottom: 10px;
+ }
+
+ .scope-row.header-row span {
+ font-size: 0.68rem;
+ color: #888;
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
+ }
+
+ .scope-item {
+ background: #0d0d1a;
+ border-radius: 6px;
+ padding: 8px 10px;
+ font-size: 0.78rem;
+ color: #ccc;
+ }
+
+ .scope-tag {
+ padding: 4px 8px;
+ border-radius: 6px;
+ font-size: 0.7rem;
+ font-weight: 700;
+ text-align: center;
+ }
+
+ .tag-billable {
+ background: rgba(46, 204, 113, 0.15);
+ color: #2ecc71;
+ border: 1px solid #2ecc71;
+ }
+
+ .tag-unpermitted {
+ background: rgba(231, 76, 60, 0.15);
+ color: #e74c3c;
+ border: 1px solid #e74c3c;
+ }
+
+ .tag-review {
+ background: rgba(200, 169, 110, 0.15);
+ color: #c8a96e;
+ border: 1px solid #c8a96e;
+ }
+
+ /* RIGHT PANEL */
+ .right-panel {
+ width: 45%;
+ padding: 32px 28px;
+ display: flex;
+ flex-direction: column;
+ gap: 20px;
+ }
+
+ /* CIRE STATUS */
+ .cire-status-block {
+ background: linear-gradient(135deg, #1a1a2e, #16213e);
+ border: 1px solid #c8a96e;
+ border-radius: 12px;
+ padding: 20px;
+ text-align: center;
+ }
+
+ .cire-status-block .cire-label {
+ font-size: 0.7rem;
+ color: #888;
+ text-transform: uppercase;
+ letter-spacing: 1px;
+ margin-bottom: 6px;
+ }
+
+ .cire-value-display {
+ font-size: 2.4rem;
+ font-weight: 800;
+ color: #c8a96e;
+ line-height: 1;
+ margin-bottom: 4px;
+ }
+
+ .cire-scenario-tag {
+ font-size: 0.75rem;
+ color: #888;
+ margin-bottom: 14px;
+ }
+
+ .cire-progress {
+ background: #0d0d1a;
+ border-radius: 20px;
+ height: 8px;
+ overflow: hidden;
+ margin-bottom: 6px;
+ }
+
+ .cire-progress-fill {
+ height: 100%;
+ background: linear-gradient(90deg, #c8a96e, #f0d080);
+ border-radius: 20px;
+ width: 0%;
+ transition: width 0.6s ease;
+ }
+
+ .cire-progress-label {
+ font-size: 0.68rem;
+ color: #666;
+ text-align: right;
+ }
+
+ /* ESCALATION BLOCK */
+ .escalation-block {
+ background: #12122a;
+ border: 1px solid #2a2a4a;
+ border-radius: 12px;
+ padding: 20px;
+ }
+
+ .escalation-block h3 {
+ font-size: 0.85rem;
+ color: #c8a96e;
+ text-transform: uppercase;
+ letter-spacing: 1px;
+ margin-bottom: 14px;
+ }
+
+ .escalation-path {
+ display: flex;
+ flex-direction: column;
+ gap: 8px;
+ }
+
+ .escalation-node {
+ display: flex;
+ align-items: center;
+ gap: 12px;
+ padding: 10px 14px;
+ border-radius: 8px;
+ background: #0d0d1a;
+ border: 1px solid #2a2a4a;
+ transition: all 0.3s;
+ }
+
+ .escalation-node.node-active {
+ border-color: #c8a96e;
+ background: rgba(200, 169, 110, 0.08);
+ }
+
+ .escalation-node.node-triggered {
+ border-color: #e74c3c;
+ background: rgba(231, 76, 60, 0.08);
+ }
+
+ .node-icon {
+ width: 32px;
+ height: 32px;
+ border-radius: 50%;
+ background: #1a1a2e;
+ border: 2px solid #2a2a4a;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ font-size: 0.9rem;
+ flex-shrink: 0;
+ }
+
+ .node-active .node-icon {
+ border-color: #c8a96e;
+ }
+
+ .node-triggered .node-icon {
+ border-color: #e74c3c;
+ }
+
+ .node-info .node-title {
+ font-size: 0.82rem;
+ color: #e0e0e0;
+ font-weight: 600;
+ }
+
+ .node-info .node-sub {
+ font-size: 0.7rem;
+ color: #666;
+ margin-top: 1px;
+ }
+
+ .node-status-tag {
+ margin-left: auto;
+ font-size: 0.65rem;
+ font-weight: 700;
+ padding: 3px 8px;
+ border-radius: 10px;
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
+ }
+
+ .tag-standby { background: #1a1a2e; color: #555; }
+ .tag-monitoring { background: rgba(200,169,110,0.15); color: #c8a96e; }
+ .tag-alert { background: rgba(231,76,60,0.15); color: #e74c3c; }
+
+ /* ACTION BUTTONS */
+ .action-block {
+ display: flex;
+ flex-direction: column;
+ gap: 10px;
+ }
+
+ .btn-primary {
+ padding: 14px;
+ border-radius: 10px;
+ border: none;
+ background: linear-gradient(135deg, #c8a96e, #f0d080);
+ color: #0d0d1a;
+ font-size: 0.88rem;
+ font-weight: 700;
+ cursor: pointer;
+ text-transform: uppercase;
+ letter-spacing: 1px;
+ transition: all 0.2s;
+ }
+
+ .btn-primary:hover {
+ transform: translateY(-1px);
+ box-shadow: 0 4px 16px rgba(200, 169, 110, 0.4);
+ }
+
+ .btn-secondary {
+ padding: 12px;
+ border-radius: 10px;
+ border: 1px solid #c8a96e;
+ background: transparent;
+ color: #c8a96e;
+ font-size: 0.82rem;
+ font-weight: 600;
+ cursor: pointer;
+ text-transform: uppercase;
+ letter-spacing: 1px;
+ transition: all 0.2s;
+ }
+
+ .btn-secondary:hover {
+ background: rgba(200, 169, 110, 0.1);
+ }
+
+ .btn-escalate {
+ padding: 14px;
+ border-radius: 10px;
+ border: none;
+ background: linear-gradient(135deg, #c0392b, #e74c3c);
+ color: #fff;
+ font-size: 0.88rem;
+ font-weight: 700;
+ cursor: pointer;
+ text-transform: uppercase;
+ letter-spacing: 1px;
+ transition: all 0.2s;
+ display: none;
+ }
+
+ .btn-escalate.visible {
+ display: block;
+ }
+
+ .btn-escalate:hover {
+ transform: translateY(-1px);
+ box-shadow: 0 4px 16px rgba(231, 76, 60, 0.4);
+ }
+
+ /* PAYLOAD PREVIEW */
+ .payload-block {
+ background: #0a0a18;
+ border: 1px solid #2a2a4a;
+ border-radius: 12px;
+ padding: 16px;
+ font-family: 'Courier New', monospace;
+ font-size: 0.72rem;
+ color: #4ec9b0;
+ line-height: 1.6;
+ max-height: 200px;
+ overflow-y: auto;
+ }
+
+ .payload-block .key { color: #9cdcfe; }
+ .payload-block .val { color: #ce9178; }
+ .payload-block .num { color: #b5cea8; }
+
+ /* AMBER SCREEN */
+ .amber-screen {
+ display: none;
+ position: fixed;
+ inset: 0;
+ background: rgba(200, 169, 110, 0.08);
+ border: 3px solid #c8a96e;
+ z-index: 100;
+ align-items: center;
+ justify-content: center;
+ flex-direction: column;
+ gap: 20px;
+ text-align: center;
+ padding: 40px;
+ }
+
+ .amber-screen.visible {
+ display: flex;
+ }
+
+ .amber-screen h2 {
+ font-size: 1.6rem;
+ color: #c8a96e;
+ text-transform: uppercase;
+ letter-spacing: 2px;
+ }
+
+ .amber-screen p {
+ font-size: 0.9rem;
+ color: #ccc;
+ max-width: 500px;
+ line-height: 1.6;
+ }
+
+ .amber-screen .cire-big {
+ font-size: 3rem;
+ font-weight: 900;
+ color: #c8a96e;
+ }
+
+ /* STATUS BAR */
+ .status-bar {
+ background: #0a0a18;
+ border-top: 1px solid #2a2a4a;
+ padding: 10px 24px;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ font-size: 0.7rem;
+ color: #555;
+ }
+
+ .status-indicator {
+ display: flex;
+ align-items: center;
+ gap: 6px;
+ }
+
+ .status-dot {
+ width: 8px;
+ height: 8px;
+ border-radius: 50%;
+ background: #2ecc71;
+ animation: pulse 2s infinite;
+ }
+
+ @keyframes pulse {
+ 0%, 100% { opacity: 1; }
+ 50% { opacity: 0.4; }
+ }
+
+ /* OFFLINE BANNER */
+ .offline-banner {
+ display: none;
+ background: #c0392b;
+ color: #fff;
+ text-align: center;
+ padding: 8px;
+ font-size: 0.78rem;
+ font-weight: 600;
+ letter-spacing: 0.5px;
+ }
+
+ .offline-banner.visible { display: block; }
+
+ /* SCROLLBAR */
+ ::-webkit-scrollbar { width: 4px; }
+ ::-webkit-scrollbar-track { background: #0d0d1a; }
+ ::-webkit-scrollbar-thumb { background: #2a2a4a; border-radius: 2px; }
+ </style>
+</head>
+<body>
+
+<!-- OFFLINE BANNER -->
+<div class="offline-banner" id="offlineBanner">
+ OFFLINE MODE - Payloads queuing locally - Auto-sync on reconnect
+</div>
+
+<!-- HEADER -->
+<header>
+ <div>
+ <h1>TAQAN One - Construction Sector</h1>
+ <span>DeShawn Carter Journey - Permit Delay CIRE Scenario</span>
+ </div>
+ <span class="sector-badge">Sector 002</span>
+</header>
+
+<!-- MAIN -->
+<div class="main-container">
+
+ <!-- LEFT PANEL -->
+ <div class="left-panel">
+
+ <!-- CHARACTER BLOCK -->
+ <div class="character-block">
+ <h2>DeShawn Carter</h2>
+ <p>General Contractor - DMV Region - Residential & Light Commercial</p>
+ <div class="character-stats">
+ <div class="stat-item">
+ <div class="label">CIRE Scenario</div>
+ <div class="value">Permit Delay</div>
+ </div>
+ <div class="stat-item">
+ <div class="label">CIRE Value</div>
+ <div class="value">$8,400.00</div>
+ </div>
+ <div class="stat-item">
+ <div class="label">Trigger</div>
+ <div class="value">Inspection Failure</div>
+ </div>
+ <div class="stat-item">
+ <div class="label">Escalation</div>
+ <div class="value">Project Manager</div>
+ </div>
+ </div>
+ </div>
+
+ <!-- PROTOCOL MODULE -->
+ <div class="protocol-module">
+ <h3>Permit Compliance Verification - 3 Attempts</h3>
+
+ <div class="attempt-tracker">
+ <div class="attempt-dot active" id="dot1">1</div>
+ <div class="attempt-dot" id="dot2">2</div>
+ <div class="attempt-dot" id="dot3">3</div>
+ <span style="margin-left:8px; font-size:0.75rem; color:#666; align-self:center;">
+ Attempt <span id="attemptNum">1</span> of 3
+ </span>
+ </div>
+
+ <div class="protocol-question active-question" id="questionBlock">
+ <strong id="questionText">Q1: Does the client hold a valid active permit for the original scope of work?</strong>
+ <div class="answer-grid">
+ <button class="answer-btn" onclick="recordAnswer('pass')" id="btnPass">Yes - Permit Active</button>
+ <button class="answer-btn" onclick="recordAnswer('fail')" id="btnFail">No - Permit Lapsed / Missing</button>
+ </div>
+ </div>
+ </div>
+
+ <!-- SCOPE MATRIX -->
+ <div class="scope-matrix">
+ <h3>Permitted vs Unpermitted Work Matrix</h3>
+ <div class="scope-row header-row">
+ <span>Work Item</span>
+ <span>Billable Status</span>
+ <span>Permit Required</span>
+ </div>
+ <div class="scope-row">
+ <div class="scope-item">Structural remediation - foundation</div>
+ <span class="scope-tag tag-billable">Billable</span>
+ <span class="scope-tag tag-unpermitted">Required</span>
+ </div>
+ <div class="scope-row">
+ <div class="scope-item">Framing adjustment - load bearing</div>
+ <span class="scope-tag tag-billable">Billable</span>
+ <span class="scope-tag tag-unpermitted">Required</span>
+ </div>
+ <div class="scope-row">
+ <div class="scope-item">Electrical rough-in relocation</div>
+ <span class="scope-tag tag-review">Review</span>
+ <span class="scope-tag tag-unpermitted">Required</span>
+ </div>
+ <div class="scope-row">
+ <div class="scope-item">Inspection re-scheduling fee</div>
+ <span class="scope-tag tag-billable">Billable</span>
+ <span class="scope-tag tag-review">Admin</span>
+ </div>
+ </div>
+
+ </div>
+
+ <!-- RIGHT PANEL -->
+ <div class="right-panel">
+
+ <!-- CIRE STATUS -->
+ <div class="cire-status-block">
+ <div class="cire-label">CIRE Value at Risk</div>
+ <div class="cire-value-display">$8,400</div>
+ <div class="cire-scenario-tag">Permit Delay - Structural Scope Expansion - DMV Region</div>
+ <div class="cire-progress">
+ <div class="cire-progress-fill" id="cireProgressFill"></div>
+ </div>
+ <div class="cire-progress-label" id="cireProgressLabel">Protocol Attempt 1 of 3</div>
+ </div>
+
+ <!-- ESCALATION PATH -->
+ <div class="escalation-block">
+ <h3>Escalation Path</h3>
+ <div class="escalation-path">
+ <div class="escalation-node node-active" id="nodeField">
+ <div class="node-icon">🏗️</div>
+ <div class="node-info">
+ <div class="node-title">Field Supervisor</div>
+ <div class="node-sub">First line - Site authority</div>
+ </div>
+ <span class="node-status-tag tag-monitoring">Monitoring</span>
+ </div>
+ <div class="escalation-node" id="nodePM">
+ <div class="node-icon">📋</div>
+ <div class="node-info">
+ <div class="node-title">Project Manager</div>
+ <div class="node-sub">Scope authorization required</div>
+ </div>
+ <span class="node-status-tag tag-standby" id="pmTag">Standby</span>
+ </div>
+ <div class="escalation-node" id="nodeOwner">
+ <div class="node-icon">👤</div>
+ <div class="node-info">
+ <div class="node-title">Owner - DeShawn Carter</div>
+ <div class="node-sub">Final authority - Change order sign-off</div>
+ </div>
+ <span class="node-status-tag tag-standby" id="ownerTag">Standby</span>
+ </div>
+ </div>
+ </div>
+
+ <!-- ACTION BUTTONS -->
+ <div class="action-block">
+ <button class="btn-primary" onclick="advanceProtocol()" id="btnAdvance">
+ Advance Protocol Check
+ </button>
+ <button class="btn-secondary" onclick="resetJourney()">
+ Reset Journey
+ </button>
+ <button class="btn-escalate" onclick="triggerEscalation()" id="btnEscalate">
+ Trigger HITL Escalation - Send to Project Manager
+ </button>
+ </div>
+
+ <!-- PAYLOAD PREVIEW -->
+ <div class="payload-block" id="payloadPreview">
+ <span class="key">"scenario_id"</span>: <span class="val">"TAQAN-CONST-001"</span>,<br>
+ <span class="key">"anchor_character"</span>: <span class="val">"DeShawn Carter"</span>,<br>
+ <span class="key">"sector"</span>: <span class="val">"Construction"</span>,<br>
+ <span class="key">"cire_trigger"</span>: <span class="val">"Permit delay - inspection failure"</span>,<br>
+ <span class="key">"cire_value"</span>: <span class="num">8400.00</span>,<br>
+ <span class="key">"currency"</span>: <span class="val">"USD"</span>,<br>
+ <span class="key">"escalation_recipient"</span>: <span class="val">"Project Manager"</span>,<br>
+ <span class="key">"hitl_gate"</span>: <span class="val">"Gate 1 - 3 failed attempts"</span>,<br>
+ <span class="key">"protocol_attempts"</span>: <span class="num" id="payloadAttempts">0</span>,<br>
+ <span class="key">"protocol_failures"</span>: <span class="num" id="payloadFailures">0</span>,<br>
+ <span class="key">"escalation_triggered"</span>: <span class="val" id="payloadEscalation">"false"</span>,<br>
+ <span class="key">"timestamp"</span>: <span class="val" id="payloadTimestamp">"awaiting"</span>
+ </div>
+
+ </div>
+</div>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+ <div class="status-indicator">
+ <div class="status-dot" id="statusDot"></div>
+ <span id="statusText">Connected - Make.com webhook ready</span>
+ </div>
+ <span>TAQAN One - Construction - Sector 002 - Case Study 002</span>
+ <span id="clockDisplay"></span>
+</div>
+
+<!-- AMBER SCREEN -->
+<div class="amber-screen" id="amberScreen">
+ <h2>HITL Gate Triggered</h2>
+ <div class="cire-big">$8,400</div>
+ <p>Three permit compliance attempts failed. Project Manager escalation initiated. DeShawn Carter requires authorization before any scope expansion work proceeds.</p>
+ <p style="font-size:0.8rem; color:#888;">Payload dispatched to Make.com - Awaiting Project Manager response</p>
+ <button class="btn-secondary" onclick="closeAmber()" style="margin-top:10px;">Acknowledge & Continue</button>
+</div>
+
+<script>
+ // STATE
+ let attemptCount = 0;
+ let failCount = 0;
+ let offlineQueue = JSON.parse(localStorage.getItem('taqan_const_queue') || '[]');
+
+ const questions = [
+ "Q1: Does the client hold a valid active permit for the original scope of work?",
+ "Q2: Has the inspection failure been documented with the permitting authority?",
+ "Q3: Has the client signed a scope expansion acknowledgment for structural remediation?"
+ ];
+
+ // CLOCK
+ function updateClock() {
+ document.getElementById('clockDisplay').textContent = new Date().toLocaleTimeString();
+ }
+ setInterval(updateClock, 1000);
+ updateClock();
+
+ // ONLINE/OFFLINE
+ function updateOnlineStatus() {
+ const offline = !navigator.onLine;
+ document.getElementById('offlineBanner').classList.toggle('visible', offline);
+ document.getElementById('statusDot').style.background = offline ? '#e74c3c' : '#2ecc71';
+ document.getElementById('statusText').textContent = offline
+ ? 'Offline - Payloads queuing locally'
+ : 'Connected - Make.com webhook ready';
+ if (!offline && offlineQueue.length > 0) processOfflineQueue();
+ }
+
+ window.addEventListener('online', updateOnlineStatus);
+ window.addEventListener('offline', updateOnlineStatus);
+ updateOnlineStatus();
+
+ // RECORD ANSWER
+ function recordAnswer(result) {
+ if (attemptCount >= 3) return;
+
+ attemptCount++;
+ document.getElementById('payloadAttempts').textContent = attemptCount;
+
+ const dot = document.getElementById('dot' + attemptCount);
+ const btnPass = document.getElementById('btnPass');
+ const btnFail = document.getElementById('btnFail');
+
+ if (result === 'fail') {
+ failCount++;
+ dot.classList.add('failed');
+ btnFail.classList.add('selected-fail');
+ document.getElementById('payloadFailures').textContent = failCount;
+ } else {
+ dot.classList.add('passed');
+ btnPass.classList.add('selected-pass');
+ }
+
+ // Update progress
+ const pct = (attemptCount / 3) * 100;
+ document.getElementById('cireProgressFill').style.width = pct + '%';
+ document.getElementById('cireProgressLabel').textContent = 'Protocol Attempt ' + attemptCount + ' of 3';
+ }
+</script>
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAQAN One | IT Validation Sandbox</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md glass-panel rounded-2xl shadow-2xl overflow-hidden relative">
+        
+        <!-- Custom Toast Notification Area -->
+        <div id="toast-container" class="absolute top-4 left-4 right-4 z-50 hidden">
+            <div id="toast-message" class="bg-indigo-600 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow-lg text-center">
+                Notification
+            </div>
+        </div>
+
+        <!-- SCREEN 1: WebAuthn Login -->
+        <div id="screen-login" class="p-8 text-center fade-in">
+            <div class="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-indigo-500/50">
+                <svg class="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.071 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
+            </div>
+            <h1 class="text-2xl font-bold mb-2">Secure Core Access</h1>
+            <p class="text-slate-400 text-sm mb-8">Authenticate to access Tier 2 client protocols.</p>
+            <button onclick="AppFlow.login()" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-xl transition duration-200 flex justify-center items-center gap-2">
+                <span>Authenticate via Passkey</span>
+            </button>
+        </div>
+
+        <!-- SCREEN 2: The Marcus Journey (IT Quiz) -->
+        <div id="screen-quiz" class="p-6 hidden">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
+                <div>
+                    <p class="text-xs text-indigo-400 font-bold uppercase tracking-wider">Active Client Module</p>
+                    <h2 class="text-lg font-bold">Apex Cloud Solutions</h2>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-slate-400">Attempts</p>
+                    <p class="text-sm font-mono bg-slate-800 px-2 py-1 rounded text-slate-300" id="attempt-counter">0 / 3</p>
+                </div>
+            </div>
+            
+            <p class="text-slate-300 text-sm mb-6 leading-relaxed">
+                <strong>Scenario:</strong> Apex has requested an emergency rollout of Azure zero-day patches across 40 VMs. According to their current Managed Services contract, how should this request be handled?
+            </p>
+
+            <div class="space-y-3" id="quiz-options">
+                <button onclick="AppFlow.submitAnswer(false)" class="w-full text-left p-4 rounded-xl border border-slate-600 hover:bg-slate-800 hover:border-slate-400 transition text-sm">
+                    A) Execute immediately; it falls under standard security maintenance.
+                </button>
+                <button onclick="AppFlow.submitAnswer(false)" class="w-full text-left p-4 rounded-xl border border-slate-600 hover:bg-slate-800 hover:border-slate-400 transition text-sm">
+                    B) Execute immediately, but log the hours for end-of-month review.
+                </button>
+                <button onclick="AppFlow.submitAnswer(true)" class="w-full text-left p-4 rounded-xl border border-slate-600 hover:bg-indigo-900 hover:border-indigo-500 transition text-sm">
+                    C) Halt execution; flag for Service Manager to issue a Change Order.
+                </button>
+            </div>
+            
+            <div id="quiz-feedback" class="mt-4 text-sm font-semibold text-center hidden"></div>
+        </div>
+
+        <!-- SCREEN 3: HITL Escalation (Option B Soft Route) -->
+        <div id="screen-escalation" class="p-8 text-center hidden">
+            <div class="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-amber-500/50">
+                <svg class="w-8 h-8 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <h2 class="text-xl font-bold mb-2">Concept Block Detected</h2>
+            <p class="text-slate-400 text-sm mb-6 leading-relaxed">
+                Marcus, it looks like the billing boundaries for the Apex Cloud contract might be causing friction. We've securely pinged Service Manager Sarah to review the MSA with you.
+            </p>
+            <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 mb-6 text-left">
+                <p class="text-xs text-slate-400 uppercase font-bold mb-1">System Status</p>
+                <p class="text-sm text-green-400 font-mono flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                    CIRE Payload Transmitted
+                </p>
+            </div>
+            <button onclick="AppFlow.resetApp()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 px-4 rounded-xl transition">
+                Return to Dashboard
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // ------------------------------------------------------------------------
+        // 1. CORE ENGINE: Handles Auth, Webhooks, and Offline Logic
+        // ------------------------------------------------------------------------
+        const CoreEngine = {
+            MAKE_WEBHOOK_URL: "https://hook.make.com/your-unique-webhook-id", // To be replaced in Step 2
+
+            showToast(message, type = "success") {
+                const container = document.getElementById('toast-container');
+                const toast = document.getElementById('toast-message');
+                toast.textContent = message;
+                toast.className = `text-white text-sm font-semibold py-2 px-4 rounded-lg shadow-lg text-center ${type === 'error' ? 'bg-red-600' : 'bg-indigo-600'}`;
+                container.classList.remove('hidden');
+                container.classList.add('fade-in');
+                setTimeout(() => {
+                    container.classList.add('hidden');
+                    container.classList.remove('fade-in');
+                }, 4000);
+            },
+
+            async authenticateViaWebAuthn() {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        console.log("✅ Authenticated locally via device enclave.");
+                        resolve({ status: "success", authData: "0x499602d2..." });
+                    }, 1200);
+                });
+            },
+
+            async triggerMakeWebhook(cirePayload) {
+                console.log("Transmitting CIRE Payload to Make.com Ingress...");
+
+                if (!navigator.onLine) {
+                    this.showToast("🟡 Device Offline: CIRE Payload queued locally.", "error");
+                    this.queuePayloadLocally(cirePayload);
+                    return false;
+                }
+
+                try {
+                    const response = await fetch(this.MAKE_WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(cirePayload)
+                    });
+
+                    if (response.ok || response.type === 'opaque') {
+                        console.log("🟢 200 OK: Payload received by Make.com.");
+                        this.showToast("✅ Pipeline Secured: Webhook Transmitted.");
+                        return true;
+                    } else {
+                        throw new Error("Server rejected payload.");
+                    }
+                } catch (error) {
+                    console.error("🔴 Network Drop Detected. Queueing locally.");
+                    this.showToast("🟡 Network error: CIRE Payload queued locally.", "error");
+                    this.queuePayloadLocally(cirePayload);
+                    return false;
+                }
+            },
+
+            queuePayloadLocally(payload) {
+                let queue = JSON.parse(localStorage.getItem('taqan_cire_queue')) || [];
+                queue.push(payload);
+                localStorage.setItem('taqan_cire_queue', JSON.stringify(queue));
+                console.log(`📦 Payload secured locally. Items in queue: ${queue.length}`);
+            },
+
+            async processOfflineQueue() {
+                let queue = JSON.parse(localStorage.getItem('taqan_cire_queue')) || [];
+                if (queue.length === 0) return;
+
+                this.showToast(`🔄 Connection restored. Processing ${queue.length} payloads...`);
+                console.log(`🔄 Connection restored. Processing ${queue.length} queued payloads...`);
+
+                for (let i = 0; i < queue.length; i++) {
+                    await this.triggerMakeWebhook(queue[i]); 
+                }
+                localStorage.removeItem('taqan_cire_queue');
+            }
+        };
+
+        // Listen for the device reconnecting to Wi-Fi/Cellular
+        window.addEventListener('online', () => CoreEngine.processOfflineQueue());
+
+        // ------------------------------------------------------------------------
+        // 2. APP FLOW: State Machine for UI and Journey
+        // ------------------------------------------------------------------------
+        const AppFlow = {
+            state: {
+                attempts: 0,
+                maxAttempts: 3
+            },
+
+            switchScreen(screenId) {
+                document.getElementById('screen-login').classList.add('hidden');
+                document.getElementById('screen-quiz').classList.add('hidden');
+                document.getElementById('screen-escalation').classList.add('hidden');
+                
+                const activeScreen = document.getElementById(screenId);
+                activeScreen.classList.remove('hidden');
+                activeScreen.classList.add('fade-in');
+            },
+
+            async login() {
+                const btn = document.getElementById('btn-login');
+                btn.innerHTML = `<span class="animate-pulse">Verifying Enclave...</span>`;
+                btn.disabled = true;
+
+                await CoreEngine.authenticateViaWebAuthn();
+                CoreEngine.showToast("Authentication Successful");
+                this.switchScreen('screen-quiz');
+            },
+
+            submitAnswer(isCorrect) {
+                const feedback = document.getElementById('quiz-feedback');
+                feedback.classList.remove('hidden');
+
+                if (isCorrect) {
+                    feedback.textContent = "Correct! Scope boundaries verified.";
+                    feedback.className = "mt-4 text-sm font-semibold text-center text-green-400";
+                    setTimeout(() => this.resetApp(), 2000);
+                } else {
+                    this.state.attempts++;
+                    document.getElementById('attempt-counter').textContent = `${this.state.attempts} / ${this.state.maxAttempts}`;
+                    
+                    if (this.state.attempts >= this.state.maxAttempts) {
+                        this.triggerEscalation();
+                    } else {
+                        feedback.textContent = "Incorrect. Please review MSA scope limits.";
+                        feedback.className = "mt-4 text-sm font-semibold text-center text-amber-400";
+                    }
+                }
+            },
+
+            triggerEscalation() {
+                this.switchScreen('screen-escalation');
+                
+                // Formulate the strict IT Scope Creep CIRE Payload mapped in our strategy
+                const cirePayload = {
+                    client: {
+                        entity_id: "IT-DMV-992",
+                        entity_name: "Apex Cloud Solutions",
+                        arr_tier: "$5M-$10M"
+                    },
+                    cire_flag: {
+                        diagnostic_dimension: 5,
+                        leakage_bucket: "Operational Revenue Drag",
+                        incident_type: "Out-of-Scope Azure Patching"
+                    },
+                    financial_impact: {
+                        unbilled_hours: 18.5,
+                        contract_hourly_rate: 225.00,
+                        calculated_cire_value: 4162.50,
+                        currency: "USD"
+                    },
+                    evidence: {
+                        ticket_reference: "JIRA-TSK-492",
+                        timestamp: new Date().toISOString()
+                    }
+                };
+
+                CoreEngine.triggerMakeWebhook(cirePayload);
+            },
+
+            resetApp() {
+                this.state.attempts = 0;
+                document.getElementById('attempt-counter').textContent = "0 / 3";
+                document.getElementById('quiz-feedback').classList.add('hidden');
+                document.getElementById('btn-login').innerHTML = `<span>Authenticate via Passkey</span>`;
+                document.getElementById('btn-login').disabled = false;
+                this.switchScreen('screen-login');
+            }
+        };
+    </script>
+</body>
+</html>
