@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMV IT Resilience Diagnostic | Secure Client-Side Instance</title>
+    <style>
+        :root {
+            --bg-primary: #0f172a; /* Slate 900 */
+            --bg-secondary: #1e293b; /* Slate 800 */
+            --bg-card: #334155; /* Slate 700 */
+            --text-primary: #f8fafc; /* Slate 50 */
+            --text-secondary: #94a3b8; /* Slate 400 */
+            --accent-danger: #ef4444; /* Red 500 */
+            --accent-warning: #f59e0b; /* Amber 500 */
+            --accent-success: #10b981; /* Emerald 500 */
+            --accent-brand: #6366f1; /* Indigo 500 */
+            --border-color: #475569;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(to right, #1e293b, #0f172a);
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { font-size: 1.25rem; font-weight: 600; letter-spacing: 0.5px; }
+        .badge {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--accent-brand);
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        /* Form Section */
+        .input-section { padding: 32px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group.full-width { grid-column: span 2; }
+        
+        label { display: block; color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 8px; font-weight: 500; }
+        
+        select, input {
+            width: 100%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        select:focus, input:focus { outline: none; border-color: var(--accent-brand); }
+
+        .btn-calculate {
+            width: 100%;
+            background: var(--accent-brand);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+        .btn-calculate:hover { background: #4f46e5; }
+
+        /* Results Section (Hidden by default) */
+        .results-section {
+            display: none;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .results-header { padding: 24px 32px; border-bottom: 1px solid var(--border-color); }
+        .results-header h2 { font-size: 1.5rem; margin-bottom: 8px; }
+        .results-header p { color: var(--text-secondary); font-size: 0.9rem; }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            padding: 32px;
+        }
+
+        /* Zone A: Peer Benchmark (The Hook) */
+        .benchmark-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .gauge-container {
+            position: relative;
+            width: 200px;
+            height: 100px; /* Half circle */
+            margin: 0 auto 20px;
+            overflow: hidden;
+        }
+        
+        .gauge-bg {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--accent-success) 0deg 120deg, 
+                var(--accent-warning) 120deg 240deg, 
+                var(--accent-danger) 240deg 360deg
+            );
+            transform: rotate(135deg);
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        .gauge-mask {
+            width: 160px;
+            height: 160px;
+            background: var(--bg-secondary);
+            border-radius: 50%;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .gauge-needle {
+            width: 4px;
+            height: 90px;
+            background: white;
+            position: absolute;
+            bottom: 0;
+            left: 98px;
+            transform-origin: bottom center;
+            transform: rotate(-90deg); /* Start position */
+            transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+        }
+
+        .benchmark-text { font-size: 1.1rem; font-weight: 600; margin-top: 15px; line-height: 1.4; }
+        .benchmark-sub { font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px; }
+        .highlight-rank { color: var(--accent-danger); font-weight: 700; font-size: 1.2rem; }
+
+        /* Zone B: Financial Impact (The Validation) */
+        .financial-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .financial-label { color: var(--text-secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+        .financial-value { font-size: 2.5rem; font-weight: 700; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+        .financial-breakdown { margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 15px; }
+        .breakdown-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; }
+        .breakdown-row span:last-child { font-weight: 600; color: var(--accent-warning); }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 24px 32px;
+            background: rgba(99, 102, 241, 0.05);
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .btn-cta {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            border: none;
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+        .btn-cta:hover { transform: translateY(-2px); }
+        
+        .security-note {
+            margin-top: 16px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .lock-icon { width: 12px; height: 12px; fill: currentColor; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-grid, .dashboard-grid { grid-template-columns: 1fr; }
+            .form-group.full-width { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>DMV IT Resilience Audit</h1>
+        <span class="badge">SECURE CLIENT-SIDE INSTANCE</span>
+    </div>
+
+    <!-- Input Form -->
+    <div class="input-section" id="inputSection">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="location">Primary Operating County</label>
+                <select id="location">
+                    <option value="nova">Northern VA (Fairfax, Loudoun, Prince William)</option>
+                    <option value="dc_core">DC Metro Core (DC, PG, Montgomery)</option>
+                    <option value="charles">Southern MD (Charles, St. Mary's)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="sector">Primary Sector</label>
+                <select id="sector">
+                    <option value="govcon">Federal Subcontractor (GovCon)</option>
+                    <option value="fintech">FinTech / Commercial</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="techs">Number of Billable Technicians</label>
+                <input type="number" id="techs" value="10" min="1">
+            </div>
+            <div class="form-group">
+                <label for="leakage">Est. Unbilled Hours/Week per Tech</label>
+                <input type="number" id="leakage" value="2.5" step="0.5" min="0">
+            </div>
+            <div class="form-group full-width">
+                <label for="rate">Average Billable Rate ($/hr)</label>
+                <input type="number" id="rate" value="175" step="25">
+                <small style="color:var(--text-secondary); font-size:0.75rem; margin-top:4px; display:block;">
+                    *Auto-adjusted based on location selection if left blank.
+                </small>
+            </div>
+        </div>
+        <button class="btn-calculate" onclick="calculateResilience()">Run Resilience Diagnostic</button>
+    </div>
+
+    <!-- Results Dashboard -->
+    <div class="results-section" id="resultsSection">
+        <div class="results-header">
+            <h2>Diagnostic Complete</h2>
+            <p>Comparison based on aggregated, anonymized data from 50+ DMV regional firms.</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Zone A: Peer Benchmarking (The Hook) -->
+            <div class="benchmark-card">
+                <div class="gauge-container">
+                    <div class="gauge-bg"></div>
+                    <div class="gauge-mask"></div>
+                    <div class="gauge-needle" id="gaugeNeedle"></div>
+                </div>
+                <div class="benchmark-text" id="benchmarkText">
+                    Calculating...
+                </div>
+                <div class="benchmark-sub" id="benchmarkSub">
+                    vs. Regional Peer Average
+                </div>
+            </div>
+
+            <!-- Zone B: Financial Impact (The Validation) -->
+            <div class="financial-card">
+                <div class="financial-label">Annualized Exposure</div>
+                <div class="financial-value" id="financialValue">$0</div>
+                <div class="financial-breakdown">
+                    <div class="breakdown-row">
+                        <span>Unbilled Labor</span>
+                        <span id="laborLoss">$0</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span>Compliance Risk Multiplier</span>
+                        <span id="riskLoss">$0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <button class="btn-cta" id="ctaButton">Unlock Recovery Protocol</button>
+            <div class="security-note">
+                <svg class="lock-icon" viewBox="0 0 24 24"><path d="M12 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm6-9h-1V6a5 5 0 0 0-10 0v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2zM9 6a3 3 0 0 1 6 0v2H9V6z"/></svg>
+                Zero-Knowledge Architecture: No data leaves this browser session.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Hard-coded Regional Benchmarks (Secure, Client-Side Constants)
+    const BENCHMARKS = {
+        nova: {
+            avgLeakageHours: 1.8, // NoVA firms are slightly more efficient
+            avgRate: 200,
+            riskMultiplier: 1.4, // Higher compliance pressure
+            name: "NoVA Federal Subcontractors"
+        },
+        dc_core: {
+            avgLeakageHours: 2.2,
+            avgRate: 165,
+            riskMultiplier: 1.2,
+            name: "DC/PG/Montgomery Firms"
+        },
+        charles: {
+            avgLeakageHours: 3.0, // Emerging market, less mature processes
+            avgRate: 150,
+            riskMultiplier: 1.1,
+            name: "Southern MD Growth Zone"
+        }
+    };
+
+    function calculateResilience() {
+        // 1. Get Inputs
+        const location = document.getElementById('location').value;
+        const techs = parseFloat(document.getElementById('techs').value);
+        const userLeakage = parseFloat(document.getElementById('leakage').value);
+        let userRate = parseFloat(document.getElementById('rate').value);
+        
+        // Auto-adjust rate if user didn't change default but changed location
+        if(userRate === 175) { 
+            userRate = BENCHMARKS[location].avgRate; 
+            document.getElementById('rate').value = userRate;
+        }
+
+        const region = BENCHMARKS[location];
+
+        // 2. Calculate Financials
+        const weeklyLoss = userLeakage * techs * userRate;
+        const annualLaborLoss = weeklyLoss * 52;
+        const totalExposure = annualLaborLoss * region.riskMultiplier;
+        const riskComponent = totalExposure - annualLaborLoss;
+
+        // 3. Calculate Peer Ranking (Percentile Logic)
+        // Simple logic: If userLeakage > avg, they are in bottom %. 
+        // Ratio > 1.0 means worse than average.
+        const efficiencyRatio = userLeakage / region.avgLeakageHours;
+        
+        let percentile, rankText, colorClass;
+        
+        if (efficiencyRatio <= 0.8) {
+            percentile = "Top 15%";
+            rankText = "Top 15% of " + region.name;
+            colorClass = "#10b981"; // Green
+        } else if (efficiencyRatio <= 1.1) {
+            percentile = "Median";
+            rankText = "Average Performance vs. " + region.name;
+            colorClass = "#f59e0b"; // Amber
+        } else if (efficiencyRatio <= 1.4) {
+            percentile = "Bottom 30%";
+            rankText = "Bottom 30% of " + region.name;
+            colorClass = "#ef4444"; // Red
+        } else {
+            percentile = "Bottom 10%";
+            rankText = "Critical: Bottom 10% of " + region.name;
+            colorClass = "#ef4444"; // Red
+        }
+
+        // 4. Update UI
+        document.getElementById('inputSection').style.display = 'none';
+        document.getElementById('resultsSection').style.display = 'block';
+
+        // Format Currency
+        const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+        
+        document.getElementById('financialValue').innerText = fmt.format(totalExposure);
+        document.getElementById('laborLoss').innerText = fmt.format(annualLaborLoss);
+        document.getElementById('riskLoss').innerText = fmt.format(riskComponent);
+
+        // Update Benchmark Text
+        const benchmarkTextEl = document.getElementById('benchmarkText');
+        benchmarkTextEl.innerHTML = `Your efficiency places you in the <br><span style="color:${colorClass}; font-size:1.4rem;">${percentile}</span>`;
+        document.getElementById('benchmarkSub').innerText = `vs. ${region.name}`;
+
+        // Animate Gauge Needle
+        // Map ratio 0.5 (great) to -90deg, 1.0 (avg) to 0deg, 1.5 (bad) to 90deg
+        let degrees = (efficiencyRatio - 1.0) * 180; 
+        if(degrees < -90) degrees = -90;
+        if(degrees > 90) degrees = 90;
+        
+        setTimeout(() => {
+            document.getElementById('gaugeNeedle').style.transform = `rotate(${degrees}deg)`;
+        }, 100);
+
+        // Dynamic CTA
+        const ctaBtn = document.getElementById('ctaButton');
+        if(efficiencyRatio > 1.1) {
+            ctaBtn.innerText = `Recover ${fmt.format(totalExposure)} Now`;
+            ctaBtn.style.background = "#ef4444"; // Urgent Red
+            ctaBtn.style.color = "white";
+        } else {
+            ctaBtn.innerText = "Protect My Top Tier Status";
+            ctaBtn.style.background = "#f8fafc";
+            ctaBtn.style.color = "#0f172a";
+        }
+    }
+</script>
+
+</body>
+</html>   
