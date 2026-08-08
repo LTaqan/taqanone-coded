@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAQAN Secure Enclave | Air-Gapped Artifact</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0b0f19; color: #f1f5f9; font-family: system-ui, -apple-system, sans-serif; }
+        .vault-panel { background: linear-gradient(135deg, #111827 0%, #1f2937 100%); border: 1px solid #374151; }
+        .glitch { animation: glitch 1s linear infinite; }
+        @keyframes glitch {
+            2%, 64% { transform: translate(2px, 0) skew(0deg); }
+            4%, 60% { transform: translate(-2px, 0) skew(0deg); }
+            62% { transform: translate(0, 0) skew(5deg); }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <!-- The Lock Screen -->
+    <div id="lock-screen" class="vault-panel p-8 rounded-xl shadow-2xl max-w-lg w-full transition-all duration-500">
+        <div class="text-center mb-8">
+            <svg class="w-12 h-12 mx-auto text-blue-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            <h2 class="text-2xl font-black tracking-tight text-white uppercase">Sovereign Enclave</h2>
+            <p class="text-xs text-gray-400 mt-2 font-mono">STATUS: ENCRYPTED (AES-GCM-256)</p>
+        </div>
+        
+        <div class="mb-6">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Enter 16-Character Diagnostic Key</label>
+            <input type="text" id="cryptoKey" placeholder="e.g., 8F9A-CMMC-2026-X7V2" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-4 text-center font-mono text-white focus:outline-none focus:border-blue-500 transition-colors" autocomplete="off">
+            <p id="error-msg" class="text-red-500 text-xs text-center mt-3 hidden font-semibold">Invalid Key or Corrupted Artifact.</p>
+        </div>
+        
+        <button id="decryptBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold py-4 rounded-lg transition-colors tracking-wide uppercase mb-4 flex items-center justify-center">
+            <span id="btnText">Decrypt & Launch</span>
+            <svg id="spinner" class="animate-spin ml-2 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        </button>
+
+        <div class="border-t border-gray-800 pt-4 mt-2">
+            <p class="text-[10px] text-gray-500 text-center leading-relaxed">
+                <strong class="text-red-400">WARNING: LOST KEY = LOST DATA.</strong><br>
+                This artifact utilizes Zero-Knowledge encryption. There is no remote recovery. You are the sole custodian of your data.
+            </p>
+        </div>
+    </div>
+
+    <!-- The Decrypted App Container (Hidden initially) -->
+    <div id="app-container" class="hidden w-full max-w-xl">
+        <!-- The interactive audit from Task 04 will be injected here upon successful decryption -->
+    </div>
+
+    <script>
+        // Mocked Encrypted Payload (In production, Vite injects the actual AES-256 ciphertext of the app here)
+        const encryptedAppBlob = "U2FsdGVkX19MockEncryptedDataBlob..."; 
+        
+        document.getElementById('decryptBtn').addEventListener('click', async () => {
+            const keyInput = document.getElementById('cryptoKey').value.replace(/-/g, ''); // strip hyphens
+            const errorMsg = document.getElementById('error-msg');
+            const btnText = document.getElementById('btnText');
+            const spinner = document.getElementById('spinner');
+
+            // 1. Strict 16+ Character Enforcement
+            if (keyInput.length < 16) {
+                errorMsg.innerText = "Security Exception: Key must be 16+ characters.";
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            errorMsg.classList.add('hidden');
+            btnText.innerText = "DERIVING KEY (PBKDF2)...";
+            spinner.classList.remove('hidden');
+
+            // 2. Simulate the heavy cryptographic derivation (600,000 iterations takes ~100-300ms)
+            // In the real build, we use window.crypto.subtle.deriveKey() here.
+            setTimeout(() => {
+                // Mock Decryption Check
+                if (document.getElementById('cryptoKey').value.includes("CMMC")) {
+                    // Success Path
+                    document.getElementById('lock-screen').classList.add('hidden');
+                    const appContainer = document.getElementById('app-container');
+                    appContainer.classList.remove('hidden');
+                    
+                    // Injecting a mock success state for the concept
+                    appContainer.innerHTML = `
+                        <div class="vault-panel p-8 rounded-xl shadow-2xl text-center border-emerald-500/30">
+                            <svg class="w-16 h-16 mx-auto text-emerald-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <h2 class="text-2xl font-black text-white mb-2">DECRYPTION SUCCESSFUL</h2>
+                            <p class="text-sm text-gray-400">The DMV IT Contractor Resilience Audit™ logic has been securely loaded into local memory.</p>
+                        </div>
+                    `;
+                } else {
+                    // Fail Path
+                    errorMsg.innerText = "Decryption Failed: Invalid Cryptographic Key.";
+                    errorMsg.classList.remove('hidden');
+                    btnText.innerText = "Decrypt & Launch";
+                    spinner.classList.add('hidden');
+                }
+            }, 800); // Artificial delay to simulate PBKDF2 workload
+        });
+    </script>
+</body>
+</html>
