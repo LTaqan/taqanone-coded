@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>TAQAN Signal</title>
+ <style>
+ * {
+ margin: 0;
+ padding: 0;
+ box-sizing: border-box;
+ }
+
+ body {
+ background-color: #0a0a0a;
+ color: #f0f0f0;
+ font-family: 'Georgia', serif;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ min-height: 100vh;
+ padding: 40px 20px;
+ }
+
+ .container {
+ max-width: 540px;
+ width: 100%;
+ text-align: center;
+ }
+
+ .wordmark {
+ font-size: 13px;
+ letter-spacing: 0.3em;
+ color: #888;
+ text-transform: uppercase;
+ margin-bottom: 48px;
+ }
+
+ .headline {
+ font-size: 28px;
+ font-weight: normal;
+ line-height: 1.4;
+ color: #f0f0f0;
+ margin-bottom: 48px;
+ }
+
+ .input-wrapper {
+ margin-bottom: 12px;
+ }
+
+ input[type="text"] {
+ width: 100%;
+ background: #111;
+ border: 1px solid #333;
+ border-radius: 4px;
+ color: #f0f0f0;
+ font-size: 18px;
+ font-family: 'Georgia', serif;
+ padding: 18px 20px;
+ text-align: center;
+ outline: none;
+ transition: border-color 0.2s;
+ }
+
+ input[type="text"]::placeholder {
+ color: #444;
+ }
+
+ input[type="text"]:focus {
+ border-color: #666;
+ }
+
+ .trust-line {
+ font-size: 11px;
+ color: #555;
+ letter-spacing: 0.08em;
+ margin-bottom: 36px;
+ }
+
+ .cta-button {
+ width: 100%;
+ background: #f0f0f0;
+ color: #0a0a0a;
+ border: none;
+ border-radius: 4px;
+ font-size: 14px;
+ font-family: 'Georgia', serif;
+ letter-spacing: 0.15em;
+ text-transform: uppercase;
+ padding: 18px 20px;
+ cursor: pointer;
+ transition: background 0.2s;
+ }
+
+ .cta-button:hover {
+ background: #d4d4d4;
+ }
+
+ /* RESULT SCREEN - hidden until calculation fires */
+ .result-screen {
+ display: none;
+ }
+
+ .result-screen.active {
+ display: block;
+ }
+
+ .exposure-label {
+ font-size: 12px;
+ letter-spacing: 0.25em;
+ color: #888;
+ text-transform: uppercase;
+ margin-bottom: 16px;
+ }
+
+ .exposure-number {
+ font-size: 52px;
+ font-weight: normal;
+ color: #f0f0f0;
+ margin-bottom: 12px;
+ }
+
+ .exposure-number.high {
+ color: #e05c5c;
+ }
+
+ .exposure-number.moderate {
+ color: #e0a85c;
+ }
+
+ .result-trust-line {
+ font-size: 11px;
+ color: #555;
+ letter-spacing: 0.08em;
+ margin-bottom: 40px;
+ }
+
+ /* HIGH CTA */
+ .cta-high {
+ width: 100%;
+ background: #e05c5c;
+ color: #fff;
+ border: none;
+ border-radius: 4px;
+ font-size: 14px;
+ font-family: 'Georgia', serif;
+ letter-spacing: 0.12em;
+ text-transform: uppercase;
+ padding: 18px 20px;
+ cursor: pointer;
+ margin-bottom: 12px;
+ display: none;
+ }
+
+ .cta-high.active {
+ display: block;
+ }
+
+ /* MODERATE CTA */
+ .cta-moderate {
+ width: 100%;
+ background: transparent;
+ color: #e0a85c;
+ border: 1px solid #e0a85c;
+ border-radius: 4px;
+ font-size: 14px;
+ font-family: 'Georgia', serif;
+ letter-spacing: 0.12em;
+ text-transform: uppercase;
+ padding: 18px 20px;
+ cursor: pointer;
+ margin-bottom: 12px;
+ display: none;
+ }
+
+ .cta-moderate.active {
+ display: block;
+ }
+
+ .footer-note {
+ font-size: 11px;
+ color: #444;
+ margin-top: 48px;
+ line-height: 1.6;
+ }
+ </style>
+</head>
+<body>
+
+<div class="container">
+
+ <!-- WORDMARK -->
+ <div class="wordmark">TAQAN Signal</div>
+
+ <!-- INPUT SCREEN -->
+ <div id="input-screen">
+ <h1 class="headline">
+ Find what your contracts<br>already owe you.
+ </h1>
+
+ <div class="input-wrapper">
+ <input
+ type="text"
+ id="contract-value"
+ placeholder="Annual contract value"
+ inputmode="numeric"
+ />
+ </div>
+
+ <p class="trust-line">Calculated privately. Never stored.</p>
+
+ <button class="cta-button" onclick="calculate">
+ Calculate My Exposure
+ </button>
+ </div>
+
+ <!-- RESULT SCREEN -->
+ <div id="result-screen" class="result-screen">
+
+ <p class="exposure-label">Total Identified Exposure</p>
+ <div id="exposure-number" class="exposure-number"></div>
+ <p class="result-trust-line">
+ Calculated across three contract risk buckets.
+ </p>
+
+ <!-- System routes. Prospect never chooses. -->
+ <button id="cta-high" class="cta-high">
+ Schedule Your Recon Session
+ </button>
+
+ <button id="cta-moderate" class="cta-moderate">
+ Request Your Findings Summary
+ </button>
+
+ </div>
+
+ <p class="footer-note">
+ TAQAN One &nbsp;|&nbsp; Washington DC - DMV &nbsp;|&nbsp;
+ Confidential diagnostic. No data transmitted.
+ </p>
+
+</div>
+
+<script>
+ // Silent geography detection - no visible prompt
+ if (navigator.geolocation) {
+ navigator.geolocation.getCurrentPosition(
+ function(position) {
+ // Captured silently - stored in session only
+ sessionStorage.setItem('geo_lat', position.coords.latitude);
+ sessionStorage.setItem('geo_lng', position.coords.longitude);
+ },
+ function {
+ // Fail silently - no UI impact
+ },
+ { timeout: 4000 }
+ );
+ }
+
+ function calculate {
+ const raw = document.getElementById('contract-value').value;
+ const cleaned = parseFloat(raw.replace(/[^0-9.]/g, ''));
+
+ if (!cleaned || cleaned < 1000) {
+ document.getElementById('contract-value').style.borderColor = '#e05c5c';
+ return;
+ }
+
+ // Three bucket calculation - locked logic
+ const bucket1 = cleaned * 0.23;
+ const bucket2 = cleaned * 0.11;
+ const bucket3 = cleaned < 5000000 ? 180000 : cleaned * 0.04;
+ const total = bucket1 + bucket2 + bucket3;
+
+ // Format
+ const formatted = '$' + Math.round(total).toLocaleString;
+
+ // Render result
+ document.getElementById('input-screen').style.display = 'none';
+ const resultScreen = document.getElementById('result-screen');
+ resultScreen.classList.add('active');
+
+ const numberEl = document.getElementById('exposure-number');
+ numberEl.textContent = formatted;
+
+ // Route - system decides - prospect never chooses
+ if (total >= 500000) {
+ numberEl.classList.add('high');
+ document.getElementById('cta-high').classList.add('active');
+ } else if (total >= 250000) {
+ numberEl.classList.add('moderate');
+ document.getElementById('cta-moderate').classList.add('active');
+ } else {
+ // Below MODERATE threshold - discovery form
+ numberEl.classList.add('moderate');
+ document.getElementById('cta-moderate').classList.add('active');
+ }
+ }
+</script>
+
+</body>
+</html>

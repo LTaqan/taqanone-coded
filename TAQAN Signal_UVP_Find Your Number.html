@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TAQAN Signal | Find Your Number</title>
+<style>
+,::before,::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--gold:#C9A84C;--gold-lt:#E2C47A;--dark:#0A0A0A;--surface:#111111;
+--card:#1A1A1A;--border:#2A2A2A;--text:#F0F0F0;--muted:#888888;
+--white:#FFFFFF;
+}
+html,body{height:100%;background:var(--dark);color:var(--text);font-family:'Georgia',serif;overflow-x:hidden}
+.screen{display:none;min-height:100vh;padding:40px 20px;flex-direction:column;align-items:center;justify-content:center;animation:fadeIn 0.6s ease forwards}
+.screen.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.wordmark{font-size:11px;font-family:'Courier New',monospace;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:40px;text-align:center}
+.wordmark span{color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:40px 36px;width:100%;max-width:560px}
+.headline{font-size:clamp(20px,4vw,28px);color:var(--white);line-height:1.35;margin-bottom:14px}
+.headline em{color:var(--gold);font-style:normal}
+.subtext{font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:28px;font-family:'Courier New',monospace}
+.label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-family:'Courier New',monospace;margin-bottom:18px;display:block}
+.sector-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.sector-btn{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:24px 16px;cursor:pointer;transition:all 0.25s ease;text-align:center;color:var(--text);font-family:'Georgia',serif;width:100%}
+.sector-btn:hover{border-color:var(--gold);background:#1E1A10}
+.sector-btn .icon{font-size:26px;display:block;margin-bottom:10px}
+.sector-btn .sector-name{font-size:13px;color:var(--white);display:block;margin-bottom:4px}
+.sector-btn .sector-sub{font-size:11px;color:var(--muted);font-family:'Courier New',monospace}
+.scenario-header{display:flex;align-items:center;gap:16px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.avatar{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#8B6914);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.scenario-meta strong{display:block;color:var(--white);font-size:15px;margin-bottom:3px}
+.scenario-meta span{font-size:11px;color:var(--muted);font-family:'Courier New',monospace;letter-spacing:1px}
+.story-line{font-size:13px;color:var(--text);line-height:1.8;margin-bottom:9px;opacity:0;transform:translateX(-8px);transition:opacity 0.5s ease,transform 0.5s ease;font-family:'Courier New',monospace}
+.story-line.visible{opacity:1;transform:translateX(0)}
+.story-line .highlight{color:var(--gold)}
+.story-line .flag{color:#E74C3C}
+.recognition-text{font-size:clamp(18px,3.5vw,24px);color:var(--white);line-height:1.5;margin-bottom:28px;text-align:center}
+.recognition-text em{color:var(--gold);font-style:normal}
+.bucket-grid{display:grid;grid-template-columns:1fr;gap:11px;margin-bottom:24px}
+.bucket{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;opacity:0;transform:translateY(10px);transition:opacity 0.5s ease,transform 0.5s ease}
+.bucket.visible{opacity:1;transform:translateY(0)}
+.bucket-label{font-size:11px;color:var(--muted);font-family:'Courier New',monospace;letter-spacing:1px}
+.bucket-amount{font-size:17px;color:var(--gold);font-family:'Courier New',monospace;font-weight:bold}
+.cire-total{background:linear-gradient(135deg,#1E1A10,#111);border:1px solid var(--gold);border-radius:4px;padding:26px 24px;text-align:center;opacity:0;transition:opacity 0.8s ease}
+.cire-total.visible{opacity:1}
+.cire-label-sm{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-family:'Courier New',monospace;margin-bottom:10px;display:block}
+.cire-number{font-size:clamp(34px,8vw,52px);color:var(--white);font-family:'Courier New',monospace;font-weight:bold;display:block;margin-bottom:6px}
+.cire-sub{font-size:11px;color:var(--muted);font-family:'Courier New',monospace}
+.pivot-lines{text-align:center}
+.pivot-line{font-size:clamp(15px,3vw,19px);color:var(--text);line-height:1.7;margin-bottom:14px;opacity:0;transition:opacity 0.7s ease;font-family:'Courier New',monospace}
+.pivot-line.visible{opacity:1}
+.pivot-line.gold{color:var(--gold);font-size:clamp(19px,4vw,25px)}
+.form-group{margin-bottom:15px}
+.form-group label{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-family:'Courier New',monospace;margin-bottom:7px}
+.form-group input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:13px 15px;color:var(--white);font-size:15px;font-family:'Georgia',serif;outline:none;transition:border-color 0.2s ease}
+.form-group input:focus{border-color:var(--gold)}
+.form-group input::placeholder{color:var(--muted)}
+.privacy-note{font-size:11px;color:var(--muted);font-family:'Courier New',monospace;text-align:center;margin-top:12px;line-height:1.6}
+.btn-primary{display:block;width:100%;background:var(--gold);color:var(--dark);border:none;border-radius:4px;padding:17px 24px;font-size:13px;font-family:'Courier New',monospace;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-weight:bold;transition:background 0.2s ease,transform 0.1s ease;text-decoration:none;text-align:center;margin-top:8px}
+.btn-primary:hover{background:var(--gold-lt)}
+.btn-primary:active{transform:scale(0.98)}
+.btn-ghost{display:block;width:100%;background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:4px;padding:15px 24px;font-size:12px;font-family:'Courier New',monospace;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s ease;text-decoration:none;text-align:center;margin-top:11px}
+.btn-ghost:hover{background:#1E1A10}
+.cta-hero{text-align:center;margin-bottom:28px}
+.cta-icon{font-size:38px;margin-bottom:14px;display:block}
+.cta-headline{font-size:clamp(19px,4vw,26px);color:var(--white);line-height:1.4;margin-bottom:11px}
+.cta-headline em{color:var(--gold);font-style:normal}
+.cta-subtext{font-size:12px;color:var(--muted);font-family:'Courier New',monospace;line-height:1.75}
+.offer-box{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:22px;margin-bottom:22px}
+.offer-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;font-family:'Courier New',monospace}
+.offer-row:last-child{border-bottom:none}
+.offer-row .item{color:var(--muted)}
+.offer-row .value{color:var(--white)}
+.offer-row.total .item{color:var(--gold);font-size:11px;letter-spacing:2px}
+.offer-row.total .value{color:var(--gold);font-size:19px;font-weight:bold}
+.divider{width:40px;height:1px;background:var(--gold);margin:22px auto;opacity:0.4}
+.progress-bar{position:fixed;top:0;left:0;height:2px;background:var(--gold);transition:width 0.5s ease;z-index:100}
+.trust-line{font-size:11px;color:var(--muted);font-family:'Courier New',monospace;text-align:center;line-height:1.7;margin-top:16px}
+@media(max-width:480px){.card{padding:26px 18px}.sector-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+
+<!-- SCREEN 1 - SECTOR SELECT -->
+<div class="screen active" id="screen-1">
+ <div class="wordmark">TAQAN <span>|</span> SIGNAL</div>
+ <div class="card">
+ <span class="label">Diagnostic Initiated</span>
+ <h1 class="headline">We find the money your federal contracts <em>already owe you.</em></h1>
+ <p class="subtext">Select your firm type to begin your Contractually Identified Revenue Exposure scan. Takes less than 3 minutes.</p>
+ <div class="sector-grid">
+ <button class="sector-btn" onclick="selectSector('it')">
+ <span class="icon">💻</span>
+ <span class="sector-name">IT Services</span>
+ <span class="sector-sub">Federal Tech Contractor</span>
+ </button>
+ <button class="sector-btn" onclick="selectSector('consulting')">
+ <span class="icon">📋</span>
+ <span class="sector-name">Federal Consulting</span>
+ <span class="sector-sub">Advisory & Management</span>
+ </button>
+ </div>
+ </div>
+</div>
+
+<!-- SCREEN 2 - SCENARIO CARD -->
+<div class="screen" id="screen-2">
+ <div class="wordmark">TAQAN <span>|</span> SIGNAL</div>
+ <div class="card">
+ <span class="label">Signal Case File</span>
+ <div class="scenario-header">
+ <div class="avatar" id="avatarIcon">👤</div>
+ <div class="scenario-meta">
+ <strong id="clientName">Loading...</strong>
+ <span id="clientMeta">Loading...</span>
+ </div>
+ </div>
+ <div id="storyContainer"></div>
+ </div>
+</div>
+
+<!-- SCREEN 3 - RECOGNITION GATE -->
+<div class="screen" id="screen-3">
+ <div class="wordmark">TAQAN <span>|</span> SIGNAL</div>
+ <div class="card" style="text-align:center">
+ <span class="label" style="text-align:center;display:block">Recognition Check</span>
+ <p class="recognition-text">Does any part of this<br><em>sound familiar?</em></p>
+ <p class="subtext" style="text-align:center;margin-bottom:28px">This firm carried this exposure for over a year before a diagnostic surfaced the number.</p>
+ <button class="btn-primary" onclick="goToScreen(4)">YES - THIS LOOKS FAMILIAR</button>
+ <button class="btn-ghost" onclick="goToScreen(4)">I WANT TO SEE MY FIRM'S NUMBER</button>
+ </div>
+</div>
+
+<!-- SCREEN 4 - CIRE REVEAL -->
+<div class="screen" id="screen-4">
+ <div class="wordmark">TAQAN <span>|</span> SIGNAL</div>
+ <div class="card">
+ <span class="label" id="revealLabel">CIRE Exposure Scan</span>
+ <h2 class="headline" style="margin-bottom:22px">Three buckets.<br><em>One number.</em></h2>
+ <div class="bucket-grid">
+ <div class="bucket" id="bucket-1">
+ <span class="bucket-label">Bucket 01 - Unbilled Scope</span>
+ <span class="bucket-amount" id="b1amount">-</span>
+ </div>
+ <div class="bucket" id="bucket-2">
+ <span class="bucket-label">Bucket 02 - Contract Disputes</span>
+ <span class="bucket-amount" id="b2amount">-</span>
+ </div>
+ <div class="bucket" id="bucket-3">
+ <span class="bucket-label">Bucket 03 - Compliance Risk</span>
+ <span class="bucket-amount" id="b3amount">-</span>
+ </div>
+ </div>
+ <div class="cire-total" id="cireTotal">
+ <span class="cire-label-sm">Total CIRE Exposure Identified</span>
+ <span class="cire-number" id="cireNumber">$0</span>
+ <span class="cire-sub">Contractually Identified Revenue Exposure</span>
+ </div>
+ <button class="btn-primary" id="revealContinueBtn" style="display:none;margin-top:22px" onclick="goToScreen(5)">SEE WHAT THIS MEANS</button>
+ </div>
+</div>
+
+<!-- SCREEN 5 - PIVOT -->
+<div class="screen" id="screen-5">
+ <div class="wordmark">TAQAN <span>|</span> SIGNAL</div>
+ <div class="card">
+ <div class="pivot-lines" id="pivotLines"></div>
+ <button class="btn-primary" id="pivotContinueBtn" style="display:none;margin-top:28px" onclick="goToScreen(6)">FIND MY EXACT NUMBER</button>
+ </div>
+</div>
+
+<!-- SCREEN 6 - EMAIL CAPTURE -->
+<div class="screen" id="screen-6">
+ <div class="wordmark">TAQAN <span>|</span> SIGNAL</div>
+ <div class="card">
+ <span class="label">Receive Your CIRE Summary</span>
+ <h2 class="headline" style="margin-bottom:11px">Your number exists.<br><em>See it in your inbox.</em></h2>
+ <p class="subtext" style="margin-bottom:24px">Enter your details. Your CIRE exposure summary delivers within one business day - encrypted and private.</p>
+ <div class="form-group">
+ <label>First Name (Optional)</label>
+ <input type="text" id="firstName" placeholder="First name">
+ </div>
+ <div class="form-group">
+ <label>Work Email Address </label>
+ <input type="email" id="emailInput" placeholder="you@yourfirm.com">
+ </div>
+ <button class="btn-primary" onclick="submitEmail()" style="margin-top:6px">SEND MY CIRE SUMMARY</button>
+ <p class="privacy-note">Your data stays encrypted and protected.<br>TAQAN One shares nothing with third parties.</p>
+ </div>
+</div>
+
+<!-- SCREEN 7 - CTA -->
+<div class="screen" id="screen-7">
+ <div class="wordmark">TAQAN <span>|</span> SIGNAL</div>
+ <div class="card">
+ <div class="cta-hero">
+ <span class="cta-icon">🔍</span>
+ <h2 class="cta-headline">Find your <em>exact number.</em><br>One session. Five days to your report.</h2>
+ <p class="cta-subtext">Black-owned GovCon firms in the DMV carry an average of $800K to $1.1M in unrecovered contract value.<br>TAQAN Recon surfaces yours.</p>
+ </div>
+ <div class="offer-box">
+ <div class="offer-row"><span class="item">Engagement</span><span class="value">TAQAN Recon</span></div>
+ <div class="offer-row"><span class="item">Format</span><span class="value">One diagnostic session</span></div>
+ <div class="offer-row"><span class="item">Deliverable</span><span class="value">Written Finding Report</span></div>
+ <div class="offer-row"><span class="item">Delivery</span><span class="value">Encrypted via Proton</span></div>
+ <div class="offer-row"><span class="item">Timeline</span><span class="value">5 business days</span></div>
+ <div class="offer-row total"><span class="item">FLAT FEE</span><span class="value">$5,500</span></div>
+ </div>
+ <a href="https://calendly.com/YOUR-LINK-HERE" target="_blank" class="btn-primary">BOOK TAQAN RECON - $5,500</a>
+ <div class="divider"></div>
+ <p class="trust-line">Built for Black-owned federal contractors<br>who have earned every dollar the government owes them.<br><br>TAQAN One &nbsp;|&nbsp; Encrypted &nbsp;|&nbsp; DMV Region</p>
+ </div>
+</div>
+
+<script>
+var currentSector = 'it';
+
+var sectors = {
+ it: {
+ icon: '💻',
+ name: 'Marcus J. Whitmore',
+ meta: 'IT Services - SDVOSB - 8(a) Certified - Active GovCon',
+ revealLabel: 'CIRE Scan - IT Services Sector',
+ b1: '$552,000',
+ b2: '$264,000',
+ b3: '$180,000',
+ total: 996000,
+ story: [
+ 'Marcus runs a 6-person federal IT firm in the DMV.',
+ 'Three active task orders across two agencies.',
+ '<span class="flag">Scope expanded verbally on all three. None billed.</span>',
+ '<span class="highlight">340 unbilled hours sitting uncaptured last quarter.</span>',
+ 'One open dispute with a contracting officer - 8 months unresolved.',
+ '<span class="flag">CMMC Level 2 renewal window opens in 90 days.</span>',
+ 'Documentation gaps create ineligibility risk at renewal.',
+ '<span class="highlight">Total exposure across three buckets - never quantified.</span>'
+ ],
+ pivot: [
+ {text: 'Marcus carried $996,000 in unrecovered exposure.', gold: false},
+ {text: 'For 14 months.', gold: true},
+ {text: 'Every invoice looked accurate on the surface.', gold: false},
+ {text: 'The gap lived between delivery and billing.', gold: false},
+ {text: 'The renewal window closed before the dispute resolved.', gold: false},
+ {text: '$264,000 became unrecoverable.', gold: false},
+ {text: 'Your number exists too.', gold: true}
+ ]
+ },
+ consulting: {
+ icon: '📋',
+ name: 'Doron Whitfield',
+ meta: 'Federal Consulting - MBE Certified - GSA MOBIS - Northern Virginia',
+ revealLabel: 'CIRE Scan - Federal Consulting Sector',
+ b1: '$528,000',
+ b2: '$312,000',
+ b3: '$156,000',
+ total: 996000,
+ story: [
+ 'Doron runs a 7-person federal advisory firm in Northern Virginia.',
+ 'GSA MOBIS schedule. DHS and USAID task orders active.',
+ '<span class="flag">280 unbilled advisory hours last quarter - scope expanded mid-engagement.</span>',
+ '<span class="highlight">Program managers flagged delivery. Nobody flagged billing.</span>',
+ 'Two task order disputes with scope interpretation gaps - 90 days unresolved.',
+ '<span class="flag">GSA MOBIS renewal in 60 days. CMMC assessment unbudgeted.</span>',
+ 'Audit trail gaps create vulnerability at contract renewal.',
+ '<span class="highlight">Three buckets of quantifiable exposure. Zero captured.</span>'
+ ],
+ pivot: [
+ {text: 'Doron carried $996,000 in unrecovered exposure.', gold: false},
+ {text: 'For 14 months.', gold: true},
+ {text: 'His team protected agency relationships.', gold: false},
+ {text: 'Nobody protected the revenue.', gold: false},
+ {text: 'The modification window closed on two disputes.', gold: false},
+ {text: '$312,000 in dispute exposure became unrecoverable.', gold: false},
+ {text: 'Your number exists too.', gold: true}
+ ]
+ }
+};
+
+function goToScreen(n) {
+ document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+ document.getElementById('screen-' + n).classList.add('active');
+ window.scrollTo(0,0);
+ var pct = Math.round((n / 7)  100);
+ document.getElementById('progressBar').style.width = pct + '%';
+ if (n === 2) { setTimeout(runScenario, 300); }
+ if (n === 4) { setTimeout(runCIREReveal, 400); }
+ if (n === 5) { setTimeout(runPivot, 300); }
+}
+
+function selectSector(sector) {
+ currentSector = sector;
+ goToScreen(2);
+}
+
+function runScenario() {
+ var data = sectors[currentSector];
+ document.getElementById('avatarIcon').textContent = data.icon;
+ document.getElementById('clientName').textContent = data.name;
+ document.getElementById('clientMeta').textContent = data.meta;
+ var container = document.getElementById('storyContainer');
+ container.innerHTML = '';
+ data.story.forEach(function(line, i) {
+ var div = document.createElement('div');
+ div.className = 'story-line';
+ div.innerHTML = line;
+ container.appendChild(div);
+ setTimeout(function() { div.classList.add('visible'); }, 300 + (i  480));
+ });
+ var btnDelay = 300 + (data.story.length  480) + 500;
+ setTimeout(function() {
+ var btn = document.createElement('button');
+ btn.className = 'btn-primary';
+ btn.style.marginTop = '22px';
+ btn.textContent = 'I RECOGNIZE THIS SITUATION';
+ btn.onclick = function() { goToScreen(3); };
+ container.appendChild(btn);
+ }, btnDelay);
+}
+
+function runCIREReveal() {
+ var data = sectors[currentSector];
+ document.getElementById('revealLabel').textContent = data.revealLabel;
+ document.getElementById('b1amount').textContent = '-';
+ document.getElementById('b2amount').textContent = '-';
+ document.getElementById('b3amount').textContent = '-';
+ document.getElementById('cireNumber').textContent = '$0';
+ ['bucket-1','bucket-2','bucket-3','cireTotal'].forEach(function(id){
+ document.getElementById(id).classList.remove('visible');
+ });
+ document.getElementById('revealContinueBtn').style.display = 'none';
+
+ setTimeout(function() {
+ var b1 = document.getElementById('bucket-1');
+ b1.classList.add('visible');
+ setTimeout(function() { document.getElementById('b1amount').textContent = data.b1; }, 200);
+ }, 400);
+
+ setTimeout(function() {
+ var b2 = document.getElementById('bucket-2');
+ b2.classList.add('visible');
+ setTimeout(function() { document.getElementById('b2amount').textContent = data.b2; }, 200);
+ }, 1000);
+
+ setTimeout(function() {
+ var b3 = document.getElementById('bucket-3');
+ b3.classList.add('visible');
+ setTimeout(function() { document.getElementById('b3amount').textContent = data.b3; }, 200);
+ }, 1600);
+
+ setTimeout(function() {
+ var total = document.getElementById('cireTotal');
+ total.classList.add('visible');
+ animateCounter('cireNumber', 0, data.total, 1800);
+ setTimeout(function() {
+ document.getElementById('revealContinueBtn').style.display = 'block';
+ }, 2000);
+ }, 2400);
+}
+
+function animateCounter(elId, start, end, duration) {
+ var el = document.getElementById(elId);
+ var startTime = null;
+ function step(timestamp) {
+ if (!startTime) startTime = timestamp;
+ var progress = Math.min((timestamp - startTime) / duration, 1);
+ var current = Math.floor(progress  (end - start) + start);
+ el.textContent = '$' + current.toLocaleString();
+ if (progress < 1) { requestAnimationFrame(step); }
+ else { el.textContent = '$' + end.toLocaleString(); }
+ }
+ requestAnimationFrame(step);
+}
+
+function runPivot() {
+ var data = sectors[currentSector];
+ var container = document.getElementById('pivotLines');
+ container.innerHTML = '';
+ document.getElementById('pivotContinueBtn').style.display = 'none';
+ data.pivot.forEach(function(item, i) {
+ var div = document.createElement('div');
+ div.className = 'pivot-line' + (item.gold ? ' gold' : '');
+ div.textContent = item.text;
+ container.appendChild(div);
+ setTimeout(function() { div.classList.add('visible'); }, 300 + (i  700));
+ });
+ var btnDelay = 300 + (data.pivot.length  700) + 400;
+ setTimeout(function() {
+ document.getElementById('pivotContinueBtn').style.display = 'block';
+ }, btnDelay);
+}
+
+function submitEmail() {
+ var email = document.getElementById('emailInput').value;
+ if (!email || email.indexOf('@') === -1) {
+ alert('Please enter a valid work email address.');
+ return;
+ }
+ goToScreen(7);
+}
+</script>
+</body>
+</html>
