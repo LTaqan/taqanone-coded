@@ -1,5 +1,5 @@
 /**
- * TAQAN One: Frontend Core Logic Sandbox
+ * [Company] One: Frontend Core Logic Sandbox
  * Simulates WebAuthn (FIDO2) and Make.com CIRE Integration.
  */
 
